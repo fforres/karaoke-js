@@ -23,6 +23,7 @@ export default {
   plugins: [
 
   ],
+  target: 'node', // in order to ignore built-in modules like path, fs, etc.
   externals: [
     // put your node 3rd party libraries which can't be built with webpack here
     // (mysql, mongodb, and so on..)
