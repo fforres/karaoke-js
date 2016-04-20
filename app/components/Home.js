@@ -12,6 +12,8 @@ export default class Home extends Component {
           <Link to="/counter">to Counter</Link>
           <br />
           <Link to="/song">to Song</Link>
+          <br />
+          <Link to="/songAudioContext">to songAudioContext</Link>
         </div>
       </div>
     );

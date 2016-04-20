@@ -4,6 +4,7 @@ import App from './containers/App';
 import HomePage from './containers/HomePage';
 import CounterPage from './containers/CounterPage';
 import SongPage from './containers/Song';
+import SongAudioContextPage from './containers/SongAudioContext';
 
 
 export default (
@@ -11,5 +12,6 @@ export default (
     <IndexRoute component={HomePage} />
     <Route path="/counter" component={CounterPage} />
     <Route path="/song" component={SongPage} />
+    <Route path="/songAudioContext" component={SongAudioContextPage} />
   </Route>
 );
