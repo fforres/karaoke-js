@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import songObject from '../utils/songObject';
 import Lyrics from '../components/Lyrics/Lyrics';
-const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 export default class HomePage extends Component {
   componentWillMount() {
     this.setState({ loading: true, error: false, isPlaying: false });
     songObject()
     .catch((e) => {
+      console.error(e);
       this.setState({ error: true });
     })
     .then((e) => {

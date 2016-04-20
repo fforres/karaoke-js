@@ -6,7 +6,7 @@ const Datauri = remote.require('datauri');
 
 const start = () => new Promise((resolve, reject) => {
   const songs = ['test'];
-  const song = songs[1];
+  const song = songs[0];
   const songPath = `/Users/groupon/Github/fforres/karaoke-js/data/songs/${song}`;
   const songFile = song;
   const ob = {
