@@ -8,7 +8,6 @@ export default class HomePage extends Component {
     this.setState({ loading: true, error: false, isPlaying: false });
     songObject()
     .catch((e) => {
-      console.error(e);
       this.setState({ error: true });
     })
     .then((e) => {
