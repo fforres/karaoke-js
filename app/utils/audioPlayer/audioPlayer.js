@@ -9,8 +9,8 @@ const audioPlayer = () => {
     navigator.msGetUserMedia
   );
   OB.source = OB.audioCtx.createBufferSource();
-  const gainNode = OB.audioCtx.createGain();
-  gainNode.gain.value = 0.1;
+  const gainMicrophoneNode = OB.audioCtx.createGain();
+  const gainMusicNode = OB.audioCtx.createGain();
   OB.recorder = OB.audioCtx.createScriptProcessor(512, 1, 1);
   OB.recorder.onaudioprocess = (e) => {
     const inputBuffer = e.inputBuffer;
@@ -27,18 +27,21 @@ const audioPlayer = () => {
   OB.connectSong = (arrayBuffer) => OB.audioCtx
     .decodeAudioData(arrayBuffer)
     .then((decodedData) => {
+      gainMusicNode.gain.value = 0;
       OB.source.buffer = decodedData;
-      OB.source.connect(OB.audioCtx.destination);
+      OB.source.connect(gainMusicNode);
+      gainMusicNode.connect(OB.audioCtx.destination);
     });
 
   OB.captureMicrophone = () => {
     navigator.getMedia(
       { audio: true },
       (stream) => {
+        gainMicrophoneNode.gain.value = 0;
         const mediaStreamSource = OB.audioCtx.createMediaStreamSource(stream);
         mediaStreamSource.connect(OB.recorder);
-        OB.recorder.connect(gainNode);
-        gainNode.connect(OB.audioCtx.destination);
+        OB.recorder.connect(gainMicrophoneNode);
+        gainMicrophoneNode.connect(OB.audioCtx.destination);
       },
       (err) => {
         console.error(err);
@@ -49,15 +52,41 @@ const audioPlayer = () => {
   OB.start = () => {
     OB.source.start(0);
   };
-
-  OB.pause = () => OB.audioCtx.suspend();
-  OB.play = () => OB.audioCtx.resume();
-
-  OB.turnVolumeUp = () => {
-    gainNode.gain.value = gainNode.gain.value + 0.1;
+  OB.pause = () => {
+    console.info('pause');
+    return OB.audioCtx.suspend();
   };
-  OB.turnVolumeDown = () => {
-    gainNode.gain.value = gainNode.gain.value - 0.1;
+  OB.play = () => {
+    console.info('play');
+    return OB.audioCtx.resume();
+  };
+  OB.stop = () => {
+    console.info('stop');
+    return OB.audioCtx.close();
+  };
+
+  OB.turnMicrophoneVolumeUp = () => {
+    gainMicrophoneNode.gain.value = gainMicrophoneNode.gain.value + 0.1;
+    console.info('Turning microfone volume up: ', gainMicrophoneNode.gain.value);
+  };
+  OB.turnMicrophoneVolumeDown = () => {
+    gainMicrophoneNode.gain.value = gainMicrophoneNode.gain.value - 0.1;
+    if (gainMusicNode.gain.value < 0.1) {
+      gainMusicNode.gain.value = 0;
+    }
+    console.info('Turning microfone volume down: ', gainMicrophoneNode.gain.value);
+  };
+
+  OB.turnMusicVolumeUp = () => {
+    gainMusicNode.gain.value = gainMusicNode.gain.value + 0.1;
+    console.info('Turning volume up: ', gainMusicNode.gain.value);
+  };
+  OB.turnMusicVolumeDown = () => {
+    gainMusicNode.gain.value = gainMusicNode.gain.value - 0.1;
+    if (gainMusicNode.gain.value < 0.1) {
+      gainMusicNode.gain.value = 0;
+    }
+    console.info('Turning volume down: ', gainMusicNode.gain.value);
   };
   return OB;
 };

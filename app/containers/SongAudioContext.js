@@ -1,9 +1,10 @@
 
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import parseSonfFile from '../utils/parseSongFile';
+import parseSongFile from '../utils/parseSongFile';
 import Lyrics from '../components/Lyrics/Lyrics';
 import audioPlayer from '../utils/audioPlayer/audioPlayer';
+import ComboKeys from 'combokeys';
 
 export default class HomePage extends Component {
   constructor(props) {
@@ -11,7 +12,8 @@ export default class HomePage extends Component {
     this.state = {
       header: {},
       body: {
-        songArr: []
+        songArr: [],
+        songSentences: []
       },
       beat: 0,
       isPlaying: false
@@ -25,6 +27,9 @@ export default class HomePage extends Component {
   componentDidMount() {
     const canv = this.refs.canvas;
     const ctx = this.refs.canvas.getContext('2d');
+    const combokeys = new ComboKeys(document.documentElement);
+    this.mapKeys(combokeys);
+
     audioPlayer.captureMicrophone();
     this.refs.video.addEventListener('play', function playEventListener() {
       const _this = this;
@@ -35,6 +40,11 @@ export default class HomePage extends Component {
         }
       })();
     }, 0);
+
+    this.refs.video.onended = (e) => {
+      console.log(e);
+    };
+
     fetch('http://localhost:3000/song')
       .then((res) => res.arrayBuffer())
       .then((r) => audioPlayer.connectSong(r))
@@ -47,7 +57,7 @@ export default class HomePage extends Component {
       .then((res) => res.body.getReader().read())
       .then((result) => {
         const a = new TextDecoder().decode(result.value, { stream: true });
-        return parseSonfFile(a);
+        return parseSongFile(a);
       })
       .then((parsedFile) => {
         this.setState({ ...parsedFile });
@@ -55,14 +65,41 @@ export default class HomePage extends Component {
       });
   }
   componentWillUnmount() {
-    audioCtx = null;
+    audioPlayer.stop();
+  }
+  mapKeys(comboKeys) {
+    comboKeys.bind('space', () => {
+      if (this.state.isPlaying) {
+        audioPlayer.pause().then(() => {
+          this.refs.video.pause();
+          this.setState({ isPlaying: false });
+        });
+      } else {
+        audioPlayer.play().then(() => {
+          this.refs.video.play();
+          this.setState({ isPlaying: true });
+        });
+      }
+    });
+
+    comboKeys.bind('ctrl + up', () => {
+      audioPlayer.turnMicrophoneVolumeUp();
+    });
+    comboKeys.bind('ctrl + down', () => {
+      audioPlayer.turnMicrophoneVolumeDown();
+    });
+    comboKeys.bind('up', () => {
+      audioPlayer.turnMusicVolumeUp();
+    });
+    comboKeys.bind('down', () => {
+      audioPlayer.turnMusicVolumeDown();
+    });
   }
   play() {
     if (!this.state.isPlaying) {
       this.setState({ isPlaying: true });
       audioPlayer.start();
       this.refs.video.play();
-      // const a = this.refs.audio;
       const timer = this.state.header.BPM / 8;
       let currentBeat = this.state.beat;
       setTimeout(() => {
@@ -70,12 +107,12 @@ export default class HomePage extends Component {
           this.setState({ beat: currentBeat });
           currentBeat++;
         }, timer);
-      }, 20178);
+      }, this.state.header.GAP || 0);
     }
   }
   render() {
     return (
-      <div>
+      <div ref="karaoke_player_container">
         <div styles={{ position: 'absolute' }}>
           <Link to="/">
             <i className="fa fa-arrow-left fa-3x" />
@@ -102,6 +139,7 @@ export default class HomePage extends Component {
         <Lyrics
           header={this.state.header}
           songArr={this.state.body.songArr}
+          songSentences={this.state.body.songSentences}
           beat={this.state.beat}
         />
       </div>

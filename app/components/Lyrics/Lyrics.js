@@ -5,8 +5,10 @@ import React, { Component } from 'react';
 export default class Home extends Component {
   render() {
     let Lyric = '';
-    if (this.props.songArr[this.props.beat]) {
-      Lyric += ' ' + this.props.songArr[this.props.beat].text
+    console.log(this.props.songSentences[this.props.beat])
+    console.log(this.props.songSentences)
+    if (this.props.songSentences[this.props.beat]) {
+      Lyric += ' ' + this.props.songSentences[this.props.beat].text
     }
     return (
       <div>
