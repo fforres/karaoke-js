@@ -1,11 +1,12 @@
-
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import parseSongFile from '../utils/parseSongFile';
 import Lyrics from '../components/Lyrics/Lyrics';
 import audioPlayer from '../utils/audioPlayer/audioPlayer';
 import ComboKeys from 'combokeys';
+import highResolutionTimer from '../utils/highResolutionTimer/highResolutionTimer';
 
+console.log(highResolutionTimer);
 export default class HomePage extends Component {
   constructor(props) {
     super(props);
@@ -40,9 +41,8 @@ export default class HomePage extends Component {
         }
       })();
     }, 0);
-
     this.refs.video.onended = (e) => {
-      console.log(e);
+      console.info(e);
     };
 
     fetch('http://localhost:3000/song')
@@ -81,7 +81,6 @@ export default class HomePage extends Component {
         });
       }
     });
-
     comboKeys.bind('ctrl + up', () => {
       audioPlayer.turnMicrophoneVolumeUp();
     });
@@ -100,13 +99,16 @@ export default class HomePage extends Component {
       this.setState({ isPlaying: true });
       audioPlayer.start();
       this.refs.video.play();
-      const timer = this.state.header.BPM / 8;
+      const timer = this.state.header.BPM;
       let currentBeat = this.state.beat;
       setTimeout(() => {
-        setInterval(() => {
-          this.setState({ beat: currentBeat });
-          currentBeat++;
-        }, timer);
+        highResolutionTimer({
+          duration: timer,
+          callback: () => {
+            this.setState({ beat: currentBeat });
+            currentBeat++;
+          }
+        });
       }, this.state.header.GAP || 0);
     }
   }

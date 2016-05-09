@@ -31,9 +31,10 @@ app.listen(PORT, 'localhost', err => {
   console.log(`Listening at http://localhost:${PORT}`);
 });
 
+const song = "N'Sync - Tearin' Up My Heart";
 
 app.get('/song', (req, res) => {
-  const stream = fs.createReadStream('./data/songs/test/test.mp3');
+  const stream = fs.createReadStream(`./data/songs/${song}/${song}.mp3`);
   stream.on('data', (data) => {
     res.write(data);
   });
@@ -43,9 +44,9 @@ app.get('/song', (req, res) => {
 });
 
 app.get('/videofile', (req, res) => {
-  res.sendFile('test.mp4', { root: './data/songs/test' });
+  res.sendFile(`${song}.mp4`, { root: `./data/songs/${song}` });
 });
 
 app.get('/data', (req, res) => {
-  res.sendFile('test.txt', { root: './data/songs/test' });
+  res.sendFile(`${song}.txt`, { root: `./data/songs/${song}` });
 });
